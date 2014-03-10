@@ -1,0 +1,151 @@
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <deque>
+#include <queue>
+#include <set>
+#include <map>
+#include <algorithm>
+#include <functional>
+#include <utility>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <cstdio>
+#include <cstring>
+#include <stdio.h>
+#include <tr1/unordered_map>
+#include <tr1/unordered_set>
+
+using namespace std;
+
+#define LL long long
+#define pb push_back
+#define mp make_pair
+#define hashmap unordered_map
+#define hashset unordered_set
+#define contains(hs, key) ((hs).find((key))!=(hs).end())
+#define REP(i,n) for(int (i)=0;(i)<(int)(n);(i)++)
+#define REP2(i,j,n) for(int (i)=(j);(i)<(int)(n);(i)++)
+#define REPD(i,j,n) for(int (i)=(j);(i)>=(int)(n);(i)--)
+#define REPC(i,j,expr) for(int (i)=(j);expr;(i)++)
+#define foreach(c,itr) for(__typeof((c).begin()) itr=(c).begin();itr!=(c).end();itr++)
+#define ALL(lst) (lst).begin(), (lst).end()
+#define inbounds(i,j,a,b) ((i)>=(a)&(i)<=(b)&(j)>=(a)&(j)<=(b))
+#define bitcount(n) __builtin_popcount(n)
+#define DEBUG 1
+#define debug(x) { if(DEBUG) cerr << #x << " = " << x << endl; }
+#define debugv(x) { if (DEBUG) cerr << #x << " = "; foreach((x), it) cerr << *it << ", "; cout << endl; }
+
+const double PI = 3.1415926535897932384626433832795;
+
+const char GAP = '-';
+
+const int GAP_PENALTY = 5, BLOSUM62[][20] =
+{
+    {  4,  0, -2, -1, -2,  0, -2, -1, -1, -1, -1, -2, -1, -1, -1,  1,  0,  0, -3, -2},
+    {  0,  9, -3, -4, -2, -3, -3, -1, -3, -1, -1, -3, -3, -3, -3, -1, -1, -1, -2, -2},
+    { -2, -3,  6,  2, -3, -1, -1, -3, -1, -4, -3,  1, -1,  0, -2,  0, -1, -3, -4, -3},
+    { -1, -4,  2,  5, -3, -2,  0, -3,  1, -3, -2,  0, -1,  2,  0,  0, -1, -2, -3, -2},
+    { -2, -2, -3, -3,  6, -3, -1,  0, -3,  0,  0, -3, -4, -3, -3, -2, -2, -1,  1,  3},
+    {  0, -3, -1, -2, -3,  6, -2, -4, -2, -4, -3,  0, -2, -2, -2,  0, -2, -3, -2, -3},
+    { -2, -3, -1,  0, -1, -2,  8, -3, -1, -3, -2,  1, -2,  0,  0, -1, -2, -3, -2,  2},
+    { -1, -1, -3, -3,  0, -4, -3,  4, -3,  2,  1, -3, -3, -3, -3, -2, -1,  3, -3, -1},
+    { -1, -3, -1,  1, -3, -2, -1, -3,  5, -2, -1,  0, -1,  1,  2,  0, -1, -2, -3, -2},
+    { -1, -1, -4, -3,  0, -4, -3,  2, -2,  4,  2, -3, -3, -2, -2, -2, -1,  1, -2, -1},
+    { -1, -1, -3, -2,  0, -3, -2,  1, -1,  2,  5, -2, -2,  0, -1, -1, -1,  1, -1, -1},
+    { -2, -3,  1,  0, -3,  0,  1, -3,  0, -3, -2,  6, -2,  0,  0,  1,  0, -3, -4, -2},
+    { -1, -3, -1, -1, -4, -2, -2, -3, -1, -3, -2, -2,  7, -1, -2, -1, -1, -2, -4, -3},
+    { -1, -3,  0,  2, -3, -2,  0, -3,  1, -2,  0,  0, -1,  5,  1,  0, -1, -2, -2, -1},
+    { -1, -3, -2,  0, -3, -2,  0, -3,  2, -2, -1,  0, -2,  1,  5, -1, -1, -3, -3, -2},
+    {  1, -1,  0,  0, -2,  0, -1, -2,  0, -2, -1,  1, -1,  0, -1,  4,  1, -2, -3, -2},
+    {  0, -1, -1, -1, -2, -2, -2, -1, -1, -1, -1,  0, -1, -1, -1,  1,  5,  0, -2, -2},
+    {  0, -1, -3, -2, -1, -3, -3,  3, -2,  1,  1, -3, -2, -2, -3, -2,  0,  4, -3, -1},
+    { -3, -2, -4, -3,  1, -2, -2, -3, -3, -2, -1, -4, -4, -2, -3, -3, -2, -3, 11,  2},
+    { -2, -2, -3, -2,  3, -3,  2, -1, -2, -1, -1, -2, -3, -1, -2, -2, -2, -1,  2,  7}
+};
+
+const string AA_ALPHABET = "ACDEFGHIKLMNPQRSTVWY";
+
+int get(char c)
+{
+    return AA_ALPHABET.find(c);
+}
+
+vector<int> pp;
+
+template <class T> int edit_distance(const T &s1, const T &s2)
+{
+    const size_t len1 = s1.size(), len2 = s2.size();
+    vector<vector<int> > d(len1 + 1, vector<int>(len2 + 1));
+    vector<vector<int> > p(len1 + 1, vector<int>(len2 + 1));
+
+    d[0][0] = 0;
+    for (int i = 1; i <= len1; ++i) d[i][0] = -i * GAP_PENALTY;
+    for (int i = 1; i <= len2; ++i) d[0][i] = -i * GAP_PENALTY;
+
+    for (int i = 1; i <= len1; ++i)
+        for (int j = 1; j <= len2; ++j)
+        {
+            //debug(min(d[i - 1][j], d[i][j - 1]) - GAP_PENALTY);
+            //debug(d[i - 1][j - 1] - BLOSUM62[get(s1[i - 1])][get(s2[j - 1])]);
+            d[i][j] = max( max(d[i - 1][j], d[i][j - 1]) - GAP_PENALTY,
+                           d[i - 1][j - 1] + BLOSUM62[get(s1[i - 1])][get(s2[j - 1])]);
+            /*if (d[i][j] == d[i - 1][j] + GAP_PENALTY)
+                p[i][j] = 1;
+            else if (d[i][j] == d[i][j - 1] + GAP_PENALTY)
+                p[i][j] = -1;
+            else
+                p[i][j] = 0;*/
+        }
+    //int x = len1, y = len2;
+    /*REP(i, len1 + 1)
+    {
+        REP(j, len2 + 1) cout << d[i][j] << '\t';
+        cout << '\n';
+    }*/
+    /*while ((x != 0) | (y != 0))
+    {
+        pp.push_back(p[x][y]);
+        if (p[x][y] == 1) --x;
+        else if (p[x][y] == -1) --y;
+        else
+        {
+            --x; --y;
+        }
+    }
+    reverse(ALL(pp));*/
+    cout << " \t";
+    REP(i, len2) cout << s2[i] << '\t'; cout << '\n';
+    REP(i, len1)
+    {
+        cout << s1[i] << '\t';
+        REP(j, len2) cout << d[i][j] << '\t';
+        cout << '\n';
+    }
+    cout << '\n';
+    return d[len1][len2];
+}
+
+int main()
+{
+#ifndef ONLINE_JUDGE
+    freopen("rosalind_glob.txt", "r", stdin); freopen("output.txt", "w", stdout);
+#endif
+    string s, t;
+    cin >> s >> t;
+    cout << edit_distance(s, t) << endl;
+    /*char s1[pp.size()], s2[pp.size()];
+    int cur1 = 0, cur2 = 0;
+    REP(i, pp.size()) switch (pp[i])
+    {
+    case 1: s1[i] = s[cur1]; s2[i] = GAP; ++cur1; break;
+    case -1: s1[i] = GAP; s2[i] = t[cur2]; ++cur2; break;
+    default: s1[i] = s[cur1]; s2[i] = t[cur2]; ++cur1; ++cur2; break;
+    }
+    REP(i, pp.size()) cout << s1[i]; cout << endl;
+    REP(i, pp.size()) cout << s2[i];*/
+    //debug(BLOSUM62[get('Y')][get('Y')]);
+    return 0;
+}
